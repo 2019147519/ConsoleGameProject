@@ -8,19 +8,19 @@
     "net10.0": []
   },
   "packageFolders": {
-    "C:\\Users\\songs\\.nuget\\packages\\": {}
+    "/Users/songsangyoon/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\songs\\Desktop\\Lion\\ConsoleGameProject\\ConsoleGameProject.csproj",
+      "projectUniqueName": "/Users/songsangyoon/codeprojects/ConsoleGameProject/ConsoleGameProject.csproj",
       "projectName": "ConsoleGameProject",
-      "projectPath": "C:\\Users\\songs\\Desktop\\Lion\\ConsoleGameProject\\ConsoleGameProject.csproj",
-      "packagesPath": "C:\\Users\\songs\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\songs\\Desktop\\Lion\\ConsoleGameProject\\obj\\",
+      "projectPath": "/Users/songsangyoon/codeprojects/ConsoleGameProject/ConsoleGameProject.csproj",
+      "packagesPath": "/Users/songsangyoon/.nuget/packages/",
+      "outputPath": "/Users/songsangyoon/codeprojects/ConsoleGameProject/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\songs\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "/Users/songsangyoon/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
@@ -65,7 +65,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.101/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.101/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.CSharp": "(,4.7.32767]",
           "Microsoft.VisualBasic": "(,10.4.32767]",
