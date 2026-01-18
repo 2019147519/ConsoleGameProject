@@ -3,8 +3,8 @@ namespace ConsoleGameProject
     static class Renderer
     {
         // Field (Member Variables)
-        const int drawOffsetX = 10;
-        const int drawOffsetY = 10;
+        const int drawOffsetX = 40;
+        const int drawOffsetY = 7;
 
         // Property
 
@@ -92,6 +92,22 @@ namespace ConsoleGameProject
             Console.ForegroundColor = foregroundColor;
             Console.Write(tile);
             Console.ResetColor();
+        }
+        public static void Print(string text)
+        {
+            int dwTime = Environment.TickCount;
+            Console.SetCursorPosition(2, 1);
+            
+            int i = 0;
+            while (i < text.Length)
+            {
+                if (dwTime + 50 < Environment.TickCount)
+                {
+                    dwTime = Environment.TickCount;
+                    Console.Write(text[i]);
+                    i++;
+                }
+            }
         }
     }
 }

@@ -1,13 +1,18 @@
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
 
 namespace ConsoleGameProject
 {
     class Game
     {
         // Field (Member Variables)
+        static string mapPath = "./map/";   // 게임 map 데이터 경로
+        //static string mapPath = "../../../map/";
         private Player player;
         private List<Stage> stages;
         private int current;    // 현재 스테이지의 index
+        private List<string> naratives;
 
         // Constructor
         public Game()
@@ -15,7 +20,9 @@ namespace ConsoleGameProject
             current = 0;
             player = new Player();
             stages = new List<Stage>();
+            naratives = new List<string>();
             LoadStages();
+            LoadNaratives();
         }
         // Property
 
@@ -24,15 +31,12 @@ namespace ConsoleGameProject
         static extern int _getch();  //c언어 함수 가져옴
         private void LoadStages()
         {
-            // 스테이지 데이터를 담은 파일 경로
-            string Path = "../../../Assets/map/";
-
-            string line;
             try
             {
                 // Metadata 파일 열기
-                StreamReader sr = new StreamReader(Path + "Meta.txt");
+                StreamReader sr = new StreamReader(mapPath + "Meta.txt");
 
+                string line;
                 // 첫 줄 읽기
                 line = sr.ReadLine();
 
@@ -58,25 +62,58 @@ namespace ConsoleGameProject
                 // Stage 생성
                 for (int i = 0; i < num; i++)
                 {
-                    stages.Add(new Stage(Path + fileNames[i]));
+                    stages.Add(new Stage(mapPath + fileNames[i]));
                 }
             }
             catch (Exception e)
             {
+                Console.SetCursorPosition(0, 0);
                 Console.WriteLine("Exception: " + e.Message);
-                Console.WriteLine($"\"{Path + "Meta.txt"}\"를 불러오는데 실패했습니다. 게임을 종료합니다.");
+                Console.WriteLine($"\"{mapPath + "Meta.txt"}\"를 불러오는데 실패했습니다. 게임을 종료합니다.");
+                Console.ReadLine();
+                Environment.Exit(0);
+            }
+        }
+        private void LoadNaratives()
+        {
+            try
+            {
+                // narative 파일 열기
+                StreamReader sr = new StreamReader(mapPath + "narative.txt");
+
+                string text = "";
+                string line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    if (line == "<###>")
+                    {
+                        naratives.Add(text);
+                        text = "";
+                        continue;
+                    }
+                    text += line + "\n";
+                }
+
+                // 파일 닫기
+                sr.Close();
+            }
+            catch (Exception e)
+            {
+                Console.SetCursorPosition(0, 0);
+                Console.WriteLine("Exception: " + e.Message);
+                Console.WriteLine($"\"{mapPath + "narative.txt"}\"를 불러오는데 실패했습니다. 게임을 종료합니다.");
                 Console.ReadLine();
                 Environment.Exit(0);
             }
         }
         public void Start()
         {
-            int width = 80;
-            int height = 25;
-            
+            // 첫 스테이지 렌더링
             stages[current].Render();
             player.Loc = stages[current].StartLoc;
             player.Render();
+            if (current < naratives.Count)
+                Renderer.Print(naratives[current]);
 
             while (true)
             {
@@ -290,7 +327,16 @@ namespace ConsoleGameProject
         }
         private void TimeReverse()
         {
+            if (current < 7) return;
+            if (player.GrabState) return;   // grab 중에는 시간 되돌리기 불가능
 
+            (int x, int y, Direction direction) past;
+            if (!stages[current].moveHistory.TryPeek(out past)) return; // 스택이 비어있는 경우 return
+
+            if ((past.x, past.y) == player.Loc) return; // 박스가 되돌아갈 위치에 플레이어가 있는 경우 시간 되돌리기 불가능
+
+            stages[current].moveHistory.Pop();
+            stages[current].ReverseBox(past.x, past.y, past.direction);
         }
         private bool CheckClear()   // 게임 완전히 클리어 시 true 리턴, 그 외의 경우 false 리턴. 스테이지 클리어 시 다음 스테이지 진입
         {
@@ -304,13 +350,20 @@ namespace ConsoleGameProject
                 player.Loc = stages[current].StartLoc;
                 player.GrabState = false;
                 player.Render();
+                if (current < naratives.Count)
+                    Renderer.Print(naratives[current]);
             }
             return false;
         }
         private void End()
         {
             // 게임 엔딩
-            Console.WriteLine("게임 클리어!");
+            Console.Clear();
+            if (current < naratives.Count)
+                Renderer.Print(naratives[current]);
+            else
+                Renderer.Print("게임 클리어");
+            Console.ReadLine();
         }
 
     }

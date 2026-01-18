@@ -8,10 +8,12 @@ namespace ConsoleGameProject
         private int startX; // 시작 위치 x좌표
         private int startY; // 시작 위치 y좌표
         private int[] map;  // 2차원 맵 데이터를 1차원 배열로 저장
+        public Stack<(int, int, Direction)> moveHistory;
         // Constructor
         public Stage(string filename)
         {
             LoadMapFromFile(filename);
+            moveHistory = new Stack<(int, int, Direction)>();
             DoorCheck();
         }
         // Property
@@ -19,7 +21,6 @@ namespace ConsoleGameProject
         {
             get { return (startX, startY); }
         }
-
         // Method
         public int GetTile(int x, int y)
         {
@@ -34,8 +35,47 @@ namespace ConsoleGameProject
                 return;
             }
 
+            moveHistory.Push((x, y, direction));
+
             map[y * width + x] -= 6;
             if (map[y * width + x] == 1)
+                DoorCheck();
+
+            Renderer.DrawTile(x, y, map[y * width + x]);
+
+            switch (direction)
+            {
+                case Direction.up:
+                    y--;
+                    break;
+                case Direction.down:
+                    y++;
+                    break;
+                case Direction.left:
+                    x--;
+                    break;
+                case Direction.right:
+                    x++;
+                    break;
+            }
+
+            map[y * width + x] += 6;
+            if (map[y * width + x] == 7)
+                DoorCheck();
+
+            Renderer.DrawTile(x, y, map[y * width + x]);
+        }
+        public void ReverseBox(int x, int y, Direction direction)
+        {
+            if (map[y * width + x] > 5)
+            {
+                Console.SetCursorPosition(0, 0);
+                Console.WriteLine("버그 발생! 게임이 비정상적으로 동작할 수 있습니다.");
+                return;
+            }
+
+            map[y * width + x] += 6;
+            if (map[y * width + x] == 7)
                 DoorCheck();
             Renderer.DrawTile(x, y, map[y * width + x]);
 
@@ -55,15 +95,9 @@ namespace ConsoleGameProject
                     break;
             }
 
-            if (map[y * width + x] == 0)
-            {
-                map[y * width + x] += 6;
-            }
+            map[y * width + x] -= 6;
             if (map[y * width + x] == 1)
-            {
-                map[y * width + x] += 6;
                 DoorCheck();
-            }
 
             Renderer.DrawTile(x, y, map[y * width + x]);
         }
@@ -113,12 +147,12 @@ namespace ConsoleGameProject
         }
         private void LoadMapFromFile(string filename)
         {
-            string line;
             try
             {
                 StreamReader sr = new StreamReader(filename);
 
                 // 첫 줄 width height 읽기
+                string line;
                 line = sr.ReadLine();
 
                 string[] words = line.Split(' ');
@@ -159,6 +193,7 @@ namespace ConsoleGameProject
             }
             catch (Exception e)
             {
+                Console.SetCursorPosition(0,0);
                 Console.WriteLine("Exception: " + e.Message);
                 Console.WriteLine($"\"{filename}\"을 불러오는데 실패했습니다. 게임을 종료합니다.");
                 Console.ReadLine();

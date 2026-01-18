@@ -12,7 +12,6 @@ namespace ConsoleGameProject
             x = y = 1;
             direction = Direction.up;
             GrabState = false;
-            HavePocketWatch = false;
         }
         public Player(int x, int y, Direction direction = Direction.up)
         {
@@ -20,7 +19,6 @@ namespace ConsoleGameProject
             this.y = y;
             this.direction = direction;
             GrabState = false;
-            HavePocketWatch = false;
         }
         // Property
         public (int x, int y) Loc
@@ -33,11 +31,6 @@ namespace ConsoleGameProject
             }
         }
         public bool GrabState    // box를 붙잡고 있는지 유무
-        {
-            get;
-            set;
-        }
-        public bool HavePocketWatch // pocket watch 아이템 보유 유무
         {
             get;
             set;

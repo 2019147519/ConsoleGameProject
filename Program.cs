@@ -75,8 +75,8 @@ namespace ConsoleGameProject
             );
 
             // 콘솔 창 크기 조절
-            Console.SetWindowSize(160, 45);
-            Console.SetBufferSize(160, 45);
+            Console.SetWindowSize(140, 40);
+            Console.SetBufferSize(140, 40);
 
             // 게임 시작
             Game game = new Game();
