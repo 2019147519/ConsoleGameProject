@@ -1,96 +1,154 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>2D 콘솔 게임 맵 에디터</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    h1 { margin-bottom: 10px; }
-    .controls { margin-bottom: 15px; }
-    .controls label { margin-right: 20px; }
-    .save-controls { margin-top: 15px; }
-    .tile-selector button {
-      margin-right: 5px; margin-bottom: 5px; padding: 6px 10px;
-      cursor: pointer; border: 1px solid #333; color: #000;
-    }
-    .tile-btn-0 { background: #e0e0e0; }
-    .tile-btn-1 { background: #444; color: #fff; }
-    .tile-btn-2 { background: #c49a6c; }
-    .tile-btn-3 { background: #3b6ea5; color: #fff; }
-    .tile-btn-4 { background: #7dbb5a; }
-    .tile-btn-5 { background: #e6d84a; }
-    .tile-selector button.active { outline: 3px solid black; }
-    #grid { display: grid; gap: 1px; margin-top: 15px; background: #444; width: fit-content; }
-    .cell { width: 32px; height: 32px; cursor: pointer; }
-    .tile-0 { background: #e0e0e0; }
-    .tile-1 { background: #444; }
-    .tile-2 { background: #c49a6c; }
-    .tile-3 { background: #3b6ea5; }
-    .tile-4 { background: #7dbb5a; }
-    .tile-5 { background: #e6d84a; }
-    textarea { width: 100%; height: 500px; margin-top: 20px; font-family: Consolas, monospace; }
-  </style>
+<meta charset="UTF-8">
+<title>2D 콘솔 게임 맵 에디터</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+.controls, .save-controls {
+  margin-bottom: 15px;
+}
+
+.tile-selector button {
+  margin: 3px;
+  padding: 6px 10px;
+  cursor: pointer;
+  border: 1px solid #333;
+}
+
+.tile-selector button.active {
+  outline: 3px solid black;
+}
+
+#grid {
+  display: grid;
+  gap: 1px;
+  background: #444;
+  width: fit-content;
+  margin-top: 10px;
+}
+
+.cell {
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
+
+/* ConsoleColor 기반 타일 색상 */
+.tile-0 { background:#f5f5f5; } /* ground */
+.tile-1 { background:#c9a100; } /* button */
+.tile-2 { background:#2fa44f; } /* stair */
+.tile-3 { background:#c0392b; } /* door open */
+.tile-4 { background:#7f8c8d; } /* wall */
+.tile-5 { background:#8e2c1c; } /* door close */
+.tile-6 { background:#2e6bd1; } /* box */
+.tile-7 { background:#113c86; } /* box on button */
+
+textarea {
+  width: 100%;
+  height: 260px;
+  margin-top: 15px;
+  font-family: Consolas, monospace;
+}
+</style>
 </head>
+
 <body>
 <h1>탑뷰 2D 콘솔 게임 맵 에디터</h1>
 
 <div class="controls">
-  <label>X:
-    <input type="range" id="widthSlider" min="5" max="30" value="11" />
+  <label>
+    Width
+    <input type="range" id="width" min="5" max="30" value="11">
     <span id="widthValue">11</span>
   </label>
-  <label>Y:
-    <input type="range" id="heightSlider" min="5" max="30" value="11" />
+  <label style="margin-left:20px;">
+    Height
+    <input type="range" id="height" min="5" max="30" value="11">
     <span id="heightValue">11</span>
   </label>
 </div>
 
+<div class="controls">
+  시작 X:
+  <input type="number" id="startX" value="0" min="0">
+  시작 Y:
+  <input type="number" id="startY" value="0" min="0">
+</div>
+
 <div class="tile-selector">
-  <strong>타일 선택:</strong><br />
-  <button data-tile="0" class="tile-btn-0 active">바닥</button>
-  <button data-tile="1" class="tile-btn-1">벽</button>
-  <button data-tile="2" class="tile-btn-2">상자</button>
-  <button data-tile="3" class="tile-btn-3">문</button>
-  <button data-tile="4" class="tile-btn-4">계단</button>
-  <button data-tile="5" class="tile-btn-5">스위치</button>
+  <strong>타일 선택</strong><br>
+  <button data-tile="0" class="active">0 Ground</button>
+  <button data-tile="1">1 Button</button>
+  <button data-tile="2">2 Stair</button>
+  <button data-tile="3">3 Door(Open)</button>
+  <button data-tile="4">4 Wall</button>
+  <button data-tile="5">5 Door(Close)</button>
+  <button data-tile="6">6 Box</button>
+  <button data-tile="7">7 Box+Button</button>
 </div>
 
 <div id="grid"></div>
 
 <div class="save-controls">
-  <input type="text" id="fileName" placeholder="파일 이름 (예: stage1)" />
-  <button id="saveBtn">저장</button>
+  <input type="text" id="fileName" placeholder="map">
+  <button id="saveBtn">저장 (txt + png)</button>
 </div>
 
-<h2>C# 배열 출력</h2>
+<h2>맵 파일 미리보기</h2>
 <textarea id="output" readonly></textarea>
 
 <script>
-const gridElement = document.getElementById('grid');
-const outputElement = document.getElementById('output');
-const widthSlider = document.getElementById('widthSlider');
-const heightSlider = document.getElementById('heightSlider');
+const grid = document.getElementById('grid');
+const output = document.getElementById('output');
+
+const widthSlider = document.getElementById('width');
+const heightSlider = document.getElementById('height');
 const widthValue = document.getElementById('widthValue');
 const heightValue = document.getElementById('heightValue');
+
+const startX = document.getElementById('startX');
+const startY = document.getElementById('startY');
+
 const tileButtons = document.querySelectorAll('.tile-selector button');
 const saveBtn = document.getElementById('saveBtn');
-const fileNameInput = document.getElementById('fileName');
 
-let gridWidth = parseInt(widthSlider.value, 10);
-let gridHeight = parseInt(heightSlider.value, 10);
+let gridWidth = +widthSlider.value;
+let gridHeight = +heightSlider.value;
 let selectedTile = 0;
 let mapData = [];
 let isMouseDown = false;
 
+/* ===== 타일 색 (PNG용) ===== */
+function getTileColor(tile) {
+  return [
+    '#f5f5f5', // 0 ground
+    '#c9a100', // 1 button
+    '#2fa44f', // 2 stair
+    '#c0392b', // 3 door open
+    '#7f8c8d', // 4 wall
+    '#8e2c1c', // 5 door close
+    '#2e6bd1', // 6 box
+    '#113c86'  // 7 box on button
+  ][tile];
+}
+
+/* ===== 맵 생성 ===== */
 function createMap() {
-  mapData = Array.from({ length: gridHeight }, () =>
-    Array.from({ length: gridWidth }, () => 0)
+  mapData = Array.from({ length: gridHeight },
+    () => Array(gridWidth).fill(0)
   );
 }
 
+/* ===== 그리드 렌더 ===== */
 function renderGrid() {
-  gridElement.innerHTML = '';
-  gridElement.style.gridTemplateColumns = `repeat(${gridWidth}, 32px)`;
+  grid.innerHTML = '';
+  grid.style.gridTemplateColumns = `repeat(${gridWidth}, 32px)`;
 
   for (let y = 0; y < gridHeight; y++) {
     for (let x = 0; x < gridWidth; x++) {
@@ -103,46 +161,55 @@ function renderGrid() {
         updateOutput();
       };
 
-      cell.addEventListener('mousedown', e => { e.preventDefault(); isMouseDown = true; paint(); });
-      cell.addEventListener('mouseenter', () => { if (isMouseDown) paint(); });
+      cell.addEventListener('mousedown', e => {
+        e.preventDefault();
+        isMouseDown = true;
+        paint();
+      });
+      cell.addEventListener('mouseenter', () => {
+        if (isMouseDown) paint();
+      });
 
-      gridElement.appendChild(cell);
+      grid.appendChild(cell);
     }
   }
 }
 
+/* ===== 출력 업데이트 ===== */
 function updateOutput() {
   const lines = [];
-  lines.push('int[,] map = new int[,]');
-  lines.push('{');
-  for (let y = 0; y < gridHeight; y++) {
-    let row = '    { ' + mapData[y].join(', ') + ' }';
-    if (y < gridHeight - 1) row += ',';
-    lines.push(row);
-  }
-  lines.push('};');
-  outputElement.value = lines.join('\n');
+  lines.push(`${gridWidth} ${gridHeight}`);
+  lines.push(`${startX.value} ${startY.value}`);
+  for (let y = 0; y < gridHeight; y++)
+    lines.push(mapData[y].join(' '));
+
+  output.value = lines.join('\n');
 }
 
+/* ===== 재빌드 ===== */
 function rebuild() {
-  gridWidth = parseInt(widthSlider.value, 10);
-  gridHeight = parseInt(heightSlider.value, 10);
+  gridWidth = +widthSlider.value;
+  gridHeight = +heightSlider.value;
   widthValue.textContent = gridWidth;
   heightValue.textContent = gridHeight;
-  createMap(); renderGrid(); updateOutput();
+
+  createMap();
+  renderGrid();
+  updateOutput();
 }
 
+/* ===== 저장 (txt + png) ===== */
 function saveFiles() {
-  const name = fileNameInput.value.trim() || 'map';
+  const name = document.getElementById('fileName').value || 'map';
 
-  // 텍스트 저장
-  const textBlob = new Blob([outputElement.value], { type: 'text/plain' });
+  /* 텍스트 */
+  const textBlob = new Blob([output.value], { type: 'text/plain' });
   const textLink = document.createElement('a');
   textLink.href = URL.createObjectURL(textBlob);
   textLink.download = name + '.txt';
   textLink.click();
 
-  // 이미지 저장
+  /* 이미지 */
   const canvas = document.createElement('canvas');
   canvas.width = gridWidth * 32;
   canvas.height = gridHeight * 32;
@@ -161,12 +228,11 @@ function saveFiles() {
   imgLink.click();
 }
 
-function getTileColor(tile) {
-  return ['#e0e0e0','#444','#c49a6c','#3b6ea5','#7dbb5a','#e6d84a'][tile];
-}
-
+/* ===== 이벤트 ===== */
 widthSlider.addEventListener('input', rebuild);
 heightSlider.addEventListener('input', rebuild);
+[startX, startY].forEach(e => e.addEventListener('input', updateOutput));
+
 document.addEventListener('mouseup', () => isMouseDown = false);
 saveBtn.addEventListener('click', saveFiles);
 
@@ -174,10 +240,11 @@ tileButtons.forEach(btn => {
   btn.addEventListener('click', () => {
     tileButtons.forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    selectedTile = parseInt(btn.dataset.tile, 10);
+    selectedTile = +btn.dataset.tile;
   });
 });
 
+/* 초기화 */
 rebuild();
 </script>
 </body>
