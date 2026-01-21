@@ -101,7 +101,7 @@ namespace ConsoleGameProject
             int i = 0;
             while (i < text.Length)
             {
-                if (dwTime + 50 < Environment.TickCount)
+                if (dwTime + 10 < Environment.TickCount)
                 {
                     dwTime = Environment.TickCount;
                     Console.Write(text[i]);

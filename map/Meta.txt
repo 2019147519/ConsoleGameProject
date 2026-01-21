@@ -1,4 +1,4 @@
-Total_number_of_stages 9
+Total_number_of_stages 11
 stage1.txt
 stage2.txt
 stage3.txt
@@ -8,3 +8,5 @@ stage6.txt
 stage7.txt
 stage8.txt
 stage9.txt
+stage10.txt
+stage11.txt
